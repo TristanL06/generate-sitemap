@@ -376,7 +376,8 @@ def main(
         additionalExt,
         dropExtension,
         dateOnly,
-        excludePaths
+        excludePaths,
+        includePaths
     ) :
     """The main function of the generate-sitemap GitHub Action.
 
@@ -400,6 +401,9 @@ def main(
     excludePaths - A set of paths to exclude from the sitemap, which can
             include directories (relative from the root) or even full
             paths to individual files.
+    includePaths - A set of paths to include in the sitemap, which can
+            include directories (relative from the root) or even full
+            paths to individual files.
     """
     repo_root = os.getcwd()
     os.chdir(sanitize_path(websiteRoot))
@@ -411,10 +415,20 @@ def main(
 
     if len(excludePaths) > 0:
         excludePaths = { adjust_path(path) for path in excludePaths}
+
+    # if includePaths is not specified, it defaults to an empty set
+    if len(includePaths) > 0:
+        includePaths = { adjust_path(path) for path in includePaths}
     blockedPaths = set(parseRobotsTxt()) | excludePaths
     
     allFiles = gatherfiles(createExtensionSet(includeHTML, includePDF, additionalExt))
     files = [ f for f in allFiles if not robotsBlocked(f, blockedPaths) ]
+
+    # If includePaths is specified, we add those files
+    # to the sitemap, but only if they are not already included and not blocked by robots.txt.
+    if len(includePaths) > 0:
+        files += [ f for f in includePaths if not robotsBlocked(f, blockedPaths) and f not in files ]
+    
     urlsort(files, dropExtension)
 
     pathToSitemap = websiteRoot
@@ -443,7 +457,8 @@ if __name__ == "__main__" :
         additionalExt = set(sys.argv[6].lower().replace(",", " ").replace(".", " ").split()),
         dropExtension = sys.argv[7].lower() == "true",
         dateOnly = sys.argv[8].lower() == "true",
-        excludePaths = set(sys.argv[9].replace(",", " ").split())
+        excludePaths = set(sys.argv[9].replace(",", " ").split()),
+        includePaths = set(sys.argv[10].replace(",", " ").split())
     )
 
     
