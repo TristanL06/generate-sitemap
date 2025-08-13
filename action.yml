@@ -85,3 +85,4 @@ runs:
     - ${{ inputs.drop-html-extension }}
     - ${{ inputs.date-only }}
     - ${{ inputs.exclude-paths }}
+    - ${{ inputs.include-paths }}
