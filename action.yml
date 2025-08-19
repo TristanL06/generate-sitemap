@@ -65,6 +65,10 @@ inputs:
     description: 'Space separated list of paths to exclude from the sitemap.'
     required: false
     default: ''
+  include-paths:
+    description: 'Space separated list of paths to include in the sitemap.'
+    required: false
+    default: ''
 outputs:
   sitemap-path: 
     description: 'The path to the generated sitemap file.'
